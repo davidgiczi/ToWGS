@@ -5,7 +5,8 @@ public class ToWGS implements WGS84, IUGG67 {
     private final double a = 6378160.0;
     private final double b = 6356774.516;
     private final double[][] MATRIX_A = new double[15][7];
-    private final double[] MATRIX_l = new double[15];
+    private final double[][] MATRIX_l = new double[15][1];
+    private double[][] PARAM_FOR_WGS;
     private final double y_EOV;
     private final double x_EOV;
 
@@ -29,24 +30,30 @@ public class ToWGS implements WGS84, IUGG67 {
             }
         }
         //At * A
-        double[][] At_A = new double[7][7];
-        int rowIndex = 0;
-        int columnIndex = 0;
-        double element;
-        for (int i = 0; i < 7; i++) {
-            element = 0.0;
-            for (int j = 0; j < 15; j++) {
-                element += ( At[i][j] * MATRIX_A[j][i] );
-            }
-            if( rowIndex == 7){
-                rowIndex = 0;
-                columnIndex++;
-            }
-            At_A[rowIndex++][columnIndex] = element;
-        }
-        double[][] inverse_At_A = new double[7][7];
+        double[][] At_A = multiplyMatrix(At, MATRIX_A);
+        double[][] inverse_At_A = InverseMatrix.invert(At_A);
+        //At * l
+        double[][] At_l = multiplyMatrix(At, MATRIX_l);
+        //1 / ( At * A ) * (At * l)
+        PARAM_FOR_WGS = multiplyMatrix(inverse_At_A, At_l);
 
+        for (int i = 0; i < 7; i++) {
+            System.out.println(PARAM_FOR_WGS[i][0]);
+        }
     }
+
+    private double[][] multiplyMatrix(double[][] matrix1, double[][] matrix2) {
+        double[][] resultMatrix = new double[matrix1.length][matrix2[0].length];
+        for (int i = 0; i < matrix1.length; i++) {
+            for (int j = 0; j < matrix2[0].length; j++) {
+                for (int k = 0; k < matrix2.length; k++) {
+                    resultMatrix[i][j] += matrix1[i][k] * matrix2[k][j];
+                }
+            }
+        }
+        return resultMatrix;
+    }
+
     private void createMatrixA(){
         MATRIX_A[0][0] = 1.0;
         MATRIX_A[0][1] = 0.0;
@@ -170,26 +177,25 @@ public class ToWGS implements WGS84, IUGG67 {
     }
 
     private void createMatrix_l(){
-        MATRIX_l[0] = IUGG67.point1_X;
-        MATRIX_l[1] = IUGG67.point1_Y;
-        MATRIX_l[2] = IUGG67.point1_Z;
-        MATRIX_l[3] = IUGG67.point2_X;
-        MATRIX_l[4] = IUGG67.point2_Y;
-        MATRIX_l[5] = IUGG67.point2_Z;
-        MATRIX_l[6] = IUGG67.point3_X;
-        MATRIX_l[7] = IUGG67.point3_Y;
-        MATRIX_l[8] = IUGG67.point3_Z;
-        MATRIX_l[9] = IUGG67.point4_X;
-        MATRIX_l[10] = IUGG67.point4_Y;
-        MATRIX_l[11] = IUGG67.point4_Z;
-        MATRIX_l[12] = IUGG67.point5_X;
-        MATRIX_l[13] = IUGG67.point5_Y;
-        MATRIX_l[14] = IUGG67.point5_Z;
+        MATRIX_l[0][0] = IUGG67.point1_X;
+        MATRIX_l[1][0] = IUGG67.point1_Y;
+        MATRIX_l[2][0] = IUGG67.point1_Z;
+        MATRIX_l[3][0] = IUGG67.point2_X;
+        MATRIX_l[4][0] = IUGG67.point2_Y;
+        MATRIX_l[5][0] = IUGG67.point2_Z;
+        MATRIX_l[6][0] = IUGG67.point3_X;
+        MATRIX_l[7][0] = IUGG67.point3_Y;
+        MATRIX_l[8][0] = IUGG67.point3_Z;
+        MATRIX_l[9][0] = IUGG67.point4_X;
+        MATRIX_l[10][0] = IUGG67.point4_Y;
+        MATRIX_l[11][0] = IUGG67.point4_Z;
+        MATRIX_l[12][0] = IUGG67.point5_X;
+        MATRIX_l[13][0] = IUGG67.point5_Y;
+        MATRIX_l[14][0] = IUGG67.point5_Z;
     }
+
     public static void main(String[] args) {
-
         ToWGS toWGS = new ToWGS(0.0,0.0,0.0);
-
     }
 
 }
