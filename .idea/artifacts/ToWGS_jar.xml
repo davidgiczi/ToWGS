@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="ToWGS:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/ToWGS_jar</output-path>
+    <root id="archive" name="ToWGS.jar">
+      <element id="module-output" name="ToWGS" />
+    </root>
+  </artifact>
+</component>
